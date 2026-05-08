@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'browser-act/**'
-      - '.github/workflows/sync-browser-act.yml'
   workflow_dispatch:
 
 concurrency:
