@@ -32,7 +32,7 @@ AI agents need more than a headless Chrome wrapper — they need a complete brow
 
 **Concurrent sessions, zero interference:**
 
-- Same-browser multi-session — shared login state, independent execution, tasks don't affect each other
+- Same-browser multi-session — shared login state, independent execution, tasks don't affect each other *(coming soon)*
 - Cross-browser multi-session — different browsers operating simultaneously, fully independent
 - Multi-account isolation — each browser has its own fingerprint, proxy, and cookies; websites cannot correlate them
 

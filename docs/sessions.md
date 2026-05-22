@@ -58,7 +58,7 @@ browser-act --session price-check session close price-check
 
 This is mandatory hygiene. Unclosed sessions consume resources and may interfere with subsequent operations.
 
-## Parallel Sessions
+## Parallel Sessions *(coming soon)*
 
 A single browser can host multiple sessions simultaneously. Each session is an independent window sharing the browser's login state:
 

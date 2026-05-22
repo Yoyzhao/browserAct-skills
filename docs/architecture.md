@@ -118,7 +118,7 @@ browser-act browser update <id> --desc-append "Also used for order tracking"
 
 ## Session Model
 
-Sessions are windows within a browser. A single browser can host multiple parallel sessions:
+Sessions are windows within a browser. A single browser can host multiple parallel sessions *(coming soon)*:
 
 ```
 Browser (chrome, id=abc123)
