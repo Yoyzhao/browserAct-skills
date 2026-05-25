@@ -1,6 +1,6 @@
 ---
 name: youtube-transcript
-description: "YouTube transcript extraction and content reformatting: given a YouTube video URL, opens the video's transcript panel, extracts all timestamped segments, and transforms the raw transcript into summaries, chapter outlines, Twitter/X threads, blog posts, or notable quotes. Use when the user shares a YouTube URL or video link, asks to summarize a video, get a transcript, extract content from a YouTube video, YouTube字幕, YouTube转文字, 提取YouTube字幕, 下载YouTube字幕, 总结YouTube视频, YouTube视频摘要, YouTube视频内容提取, get YouTube captions, transcribe YouTube video, YouTube video to text, make a thread from YouTube, YouTube to blog post, YouTube to article, pull transcript from YouTube, YouTube content extraction, convert YouTube to text, YouTube 内容转换, 视频转文稿, 视频内容整理. Also applies when user wants to reformat any YouTube video content into structured output (chapters, threads, blog articles, key quotes)."
+description: "YouTube transcript extraction and content reformatting: given a YouTube video URL, opens the video's transcript panel, extracts all timestamped segments, and transforms the raw transcript into summaries, chapter outlines, Twitter/X threads, blog posts, or notable quotes. Use when the user shares a YouTube URL or video link, asks to summarize a video, get a transcript, extract content from a YouTube video, get YouTube captions, extract YouTube captions, download YouTube captions, transcribe YouTube video, YouTube video to text, make a thread from YouTube, YouTube to blog post, YouTube to article, pull transcript from YouTube, YouTube content extraction, convert YouTube to text, video to transcript. Also applies when user wants to reformat any YouTube video content into structured output (chapters, threads, blog articles, key quotes)."
 ---
 
 # YouTube — Transcript Extraction & Content Reformatting
@@ -54,7 +54,7 @@ Returns `{"error": true, "message": "..."}` when transcripts are disabled or pag
 
 `eval "$(python scripts/open-transcript-panel.py)"`
 
-No parameters. Clicks the "Show transcript" / "内容转文字" button below the video. Tries multiple language variants of the button label for robustness.
+No parameters. Clicks the "Show transcript" button below the video (handles multiple UI language variants automatically for robustness).
 
 Must call `wait stable` after this to allow the panel to fully load.
 
@@ -103,11 +103,11 @@ After fetching the transcript, transform it based on what the user requests. If 
 - **Quotes**: Notable quotes with their timestamps
 
 **Default Full Document output order** (when no specific format is requested):
-1. 摘要 (Summary)
-2. 章节 (Chapters)
-3. 推文线程 (Thread)
-4. 博客文章 (Blog Post)
-5. 金句 (Quotes)
+1. Summary
+2. Chapters
+3. Thread
+4. Blog Post
+5. Quotes
 
 ### Workflow
 
