@@ -1,16 +1,14 @@
 # Skills
 
-## Installing the Skill
+## Installing the Entry Skill
 
 Tell your agent:
 
-> Install browser-act Skill from https://github.com/browser-act/skills/tree/main/browser-act
+> Install the browser-act Skill from https://github.com/browser-act/skills/tree/main/browser-act
 
-The agent will automatically download the SKILL file to its Skills directory. Once installed, the agent becomes aware of Browser-act and will automatically invoke it when appropriate.
+The agent automatically downloads the SKILL file into its Skills directory. Once installed, the agent becomes aware of BrowserAct and invokes it when appropriate.
 
 ## Two-Layer Architecture
-
-Browser-act uses a two-layer Skill architecture:
 
 ```
 ┌─────────────────────────────────────────┐
@@ -18,7 +16,7 @@ Browser-act uses a two-layer Skill architecture:
 │  Lightweight, stable, rarely changes    │
 │  Teaches the agent: "browser-act exists"│
 ├─────────────────────────────────────────┤
-│  Runtime Content (get-skills CLI)       │
+│  Runtime content (get-skills CLI)       │
 │  Environment-aware, version-matched     │
 │  Teaches the agent: "use it like this"  │
 └─────────────────────────────────────────┘
@@ -26,9 +24,9 @@ Browser-act uses a two-layer Skill architecture:
 
 ### Layer 1: Entry Skill
 
-The file installed to the agent's Skills directory. It's intentionally minimal:
-- Triggers agent awareness of Browser-act
-- Contains trigger words for activation
+The file installed into the agent's Skills directory. It's intentionally minimal:
+- Triggers agent awareness of BrowserAct
+- Contains trigger words that activate it
 - Points the agent to `get-skills` for actual instructions
 
 The entry Skill rarely changes — it's the stable entry point.
@@ -41,91 +39,85 @@ The agent's first command must always be:
 browser-act get-skills core --skill-version <version>
 ```
 
-This returns everything the agent needs for the current session:
+It returns everything the agent needs for the current session:
 - **Environment state** — CLI version, API Key status
-- **Browser list** — All available browsers with IDs, types, descriptions
+- **Browser list** — All available browsers with their IDs, types, and descriptions
 - **Active sessions** — Currently running sessions
 - **Core commands** — Interaction reference
-- **Directives** — Dynamic rules based on current state
-
-### Why This Design
-
-**Solves version drift:** The installed Skill file points to `get-skills`. The CLI always returns content matching its own version. No stale instructions.
-
-**Environment awareness:** `get-skills` returns actual current state — what browsers exist, which sessions are active, whether the API Key is configured. The agent starts with complete situational awareness.
-
-**Progressive disclosure:** `get-skills core` covers 80% of use cases. `get-skills advanced` loads additional capabilities only when needed.
+- **Directives** — Dynamic rules based on the current state
 
 ## Topics
 
 | Command | Content | When to use |
 |---------|---------|-------------|
 | `get-skills core --skill-version <v>` | Core workflow, commands, environment state | Always first |
-| `get-skills advanced` | Proxy, Profile, privacy mode, advanced features | When core isn't enough |
-| `get-skills main` | Latest SKILL.md content for self-update | When version mismatch detected |
+| `get-skills advanced` | Proxy, Profile, privacy mode, advanced patterns | When core isn't enough |
+| `get-skills main` | Latest SKILL.md content for self-update | When a version mismatch is detected |
+
+## Progressive Loading
+
+- **Most tasks only need `get-skills core`** — covers 80% of use cases
+- **Load `get-skills advanced` only when needed** — proxy config, Profile import, etc.
+- Avoid pulling unrelated information all at once
 
 ## Version Compatibility
 
 The `--skill-version` parameter lets the CLI detect incompatibilities:
 
 ```bash
-# Skill claims to be version 2.0.2
+# The Skill claims version 2.0.2
 browser-act get-skills core --skill-version 2.0.2
 ```
 
-If CLI version is incompatible with Skill version, the output includes upgrade guidance:
+If the CLI version is incompatible with the Skill version, the output includes upgrade guidance:
 - CLI too old → `uv tool upgrade browser-act-cli`
-- Skill too old → `browser-act get-skills main` to get latest Skill content
+- Skill too old → `browser-act get-skills main` for the latest Skill content
 
-## Directives: Dynamic Guidance
+Version compatibility is automatic: the Skill file declares its version, the CLI checks compatibility. When incompatible, the upgrade guidance lands directly in the output and the agent runs it automatically.
 
-`get-skills` output includes "Directives" — context-aware rules generated based on current state:
+## Dynamic Directives
 
-**Multi-browser directive:** When multiple browsers exist, provides selection guidance based on `desc` matching.
+`get-skills` output includes "Directives" — context-aware rules generated based on the current state:
 
-**Session directive:** When existing sessions are found, reminds the agent of ownership rules.
+| Directive | Trigger |
+|-----------|---------|
+| **Multi-browser directive** | When multiple browsers exist, provides selection guidance based on `desc` matching |
+| **Session directive** | When existing sessions are detected, reminds the agent of ownership rules |
+| **Authentication directive** | When the API Key is missing, steers away from stealth operations |
 
-**Authentication directive:** When API Key is missing, steers away from stealth operations.
+Directives are BrowserAct's mechanism for adapting guidance to the agent's current situation without hard-coding every scenario in the Skill.
 
-Directives are Browser-act's mechanism for adapting guidance to the agent's current situation without hardcoding every scenario in the Skill.
+## Workflow from the Agent's Perspective
+
+```
+1. User says "check the price on example.com"
+2. The agent's entry Skill activates (trigger word match)
+3. Agent runs: browser-act get-skills core --skill-version 2.0.2
+4. Agent receives: environment state + browser list + commands + dynamic directives
+5. Agent picks an appropriate browser (desc match)
+6. Agent confirms with the user (confirmation gate)
+7. Agent executes browser operations
+8. Agent closes the session, updates the browser's desc
+```
 
 ## Agent Compatibility
 
-The Skill system works with any agent that can:
+Works with any agent that can:
 1. Read SKILL files from a Skills directory
 2. Execute shell commands
 3. Parse text output
 
 Compatibility list:
 - **Claude Code** — SKILL.md in `.claude/skills/`
-- **GitHub Copilot** — Discovered via Skills directory
-- **Cursor** — Rules/Skills directory
+- **GitHub Copilot** — Discovered via the Skills directory
+- **Cursor** — Rules / Skills directory
 - **Windsurf** — Agent Skills system
 - **Google Gemini CLI** — AGENTS.md integration
-
-## Workflow from the Agent's Perspective
-
-```
-1. User says "check the price on example.com"
-2. Agent's entry Skill activates (trigger word match)
-3. Agent runs: browser-act get-skills core --skill-version 2.0.2
-4. Agent receives: environment state + browser list + commands + dynamic directives
-5. Agent selects appropriate browser (desc matching)
-6. Agent confirms with user (confirmation gate)
-7. Agent executes browser operations
-8. Agent closes session, updates browser desc
-```
-
-### Key Design Points
-
-**Progressive loading reduces noise.** Most tasks only need `get-skills core`. Advanced capabilities like proxy configuration and Profile import load on-demand via `get-skills advanced`.
-
-**Version compatibility is automatic.** The Skill file declares its version, the CLI checks compatibility. When incompatible, the output directly includes upgrade guidance that the agent executes automatically.
-
-**desc is cumulative memory.** After each browser use, the agent appends new discoveries to desc. Next time a similar task comes up, it matches directly without asking the user again.
+- **OpenCode** — Skills system
+- **Codex** — Skills integration
 
 ## Next Steps
 
-- [Installation](installation.md) — How to install the Skill
-- [Quick Start](quick-start.md) — First automation workflow
-- [Architecture](architecture.md) — Understanding what get-skills reports
+- [Quick Start](quick-start.md) — Run your first automation
+- [Commands](commands.md) — Complete command reference
+- [Skill Forge](skill-forge.md) — Bake operations into reusable Skills

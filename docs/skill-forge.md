@@ -1,138 +1,138 @@
 # Skill Forge
 
-Browser automation CLI built for AI agents. Explore any website once, generate a deploy-ready Skill package, then run reliably at scale without re-exploration.
+An extension Skill built on top of the BrowserAct CLI. **Let AI write your scrapers — explore once, reuse forever.**
 
-## The Problem
+## What It Solves
 
-Every time you ask an AI agent to extract data from a new website, it starts from scratch — different execution path each time, different failure modes, unreliable at scale. If the site changes layout, everything breaks.
+Every time you ask an agent to scrape a new site, it starts from scratch:
+- Different execution path each time
+- Different failure modes
+- Unreliable at scale
+- Token cost grows linearly with each call
 
-Skill Forge fixes this: **explore once, reuse forever.**
+**Skill Forge separates "exploring a site" from "using a site":**
 
----
+> Explore once to generate a deploy-ready Skill package. 500 or 5,000 records all run through the same stable path.
+
+Scraping teams move from "build a scraper per request" to "run a platform that lets agents self-serve Skill generation."
 
 ## Install
 
+Skill Forge is an extension separate from the BrowserAct entry Skill. Install it on its own.
+
+### Agent Integration (Recommended)
+
 Tell your AI agent:
 
-> Install browser-act-skill-forge Skill from https://github.com/browser-act/skills/tree/main/browser-act-skill-forge
+> Install browser-act-skill-forge. Skill source: https://github.com/browser-act/skills/tree/main/browser-act-skill-forge . Verify it works after installation.
 
----
+The agent handles Skill configuration and validates it.
 
-## Quick Start
+### Prerequisites
 
-Tell your agent what you need:
+- BrowserAct CLI installed (see [Installation](installation.md))
+- BrowserAct entry Skill installed
 
-> "Forge a Skill that extracts job listings from LinkedIn — title, company, salary, URL. I'll run it on 300 keywords later."
-
-The agent will:
-
-1. Navigate to LinkedIn job search
-2. Discover internal API endpoints via network inspection
-3. Map parameters (keyword, location, page)
-4. Generate `scripts/linkedin-jobs.py` with argparse interface
-5. Create `SKILL.md` with usage instructions
-6. Run automated tests to verify
-7. Install the Skill
-8. Execute batch extraction for 300 keywords
-
-No manual coding. No fragile scrapers. One conversation to a production-ready Skill.
-
----
-
-## How It Works
+## How It Works: A Four-Step Pipeline
 
 ```
-Phase 0 (Tool Detection)
-  → Phase 1 (Requirements Analysis & Confirmation)
-    → Phase 2 (Capability Exploration)
-      → Phase 3 (Skill Generation)
-        → Delivery (Test → Install → Execute)
+Describe → Explore → Generate → Self-Test
 ```
 
-### 1. Describe
+| Step | What it does |
+|------|--------------|
+| **01 · Describe** | Tell the agent what you want |
+| **02 · Explore** | API-first, DOM as fallback |
+| **03 · Generate** | Parameterized Skill package |
+| **04 · Self-test** | End-to-end validation + self-repair |
 
-Tell the agent the target site and what data to extract or what action to perform.
+### Step 01 · Describe
 
-### 2. Explore
+Tell the agent in natural language what data you need and how you'll use it:
 
-Skill Forge automatically discovers implementation paths — API endpoints first (fastest, most reliable), DOM extraction as fallback when no API is available.
+> "Pull title, company, salary, and URL from LinkedIn job postings. I'll run 300 keywords later."
 
-### 3. Generate
+### Step 02 · Explore: API-First, DOM Fallback
 
-Produces deploy-ready Skill packages with business parameters extracted as CLI arguments:
+The agent automatically discovers the implementation path:
 
-```
-output/{skill-name}/{site-slug}-{capability-slug}/
-├── SKILL.md          # Agent-readable execution guide
-└── scripts/
-    └── feature.py    # Parameterized extraction/operation script
-```
+| Priority | Method | Stability |
+|----------|--------|-----------|
+| 1 | **API-first** — endpoint discovery via network capture | 10× more stable |
+| 2 | **DOM fallback** — element extraction | Affected by site redesigns |
 
-### 4. Auto-Test
+API paths keep working as long as the backend contract holds. DOM paths require re-exploration after a redesign.
 
-A sub-agent verifies the generated Skill end-to-end and self-fixes failures until passing. No manual intervention needed.
+### Step 03 · Generate: Parameterized Skill Package
 
-### 5. Deploy & Scale
+Business variables become CLI arguments (not hard-coded):
 
-Run 500 or 5,000 records through the same stable path, anytime. The exploration cost is paid once — every subsequent execution is fast and reliable.
-
----
-
-## Exploration Priority
-
-Skill Forge follows a strict priority for discovering implementation paths:
-
-```
-API endpoints (fastest, most reliable)
-  → UI trigger + Network capture (when API can't be called independently)
-    → DOM extraction (last resort, most fragile)
+```bash
+# The generated Skill takes parameterized inputs
+forged-skill linkedin-jobs --keyword "AI Engineer" --location "Remote"
+forged-skill linkedin-jobs --keyword "Backend" --location "SF"
 ```
 
-API-first means generated Skills are faster, more stable, and less likely to break when the site updates its UI.
+Output:
+- `SKILL.md` — Skill file
+- Executable script
+- Deploy-ready
 
----
+### Step 04 · Self-Test: End-to-End Validation + Self-Repair
 
-## Two Capability Types
+A sub-agent runs tests automatically and self-repairs on failure until it passes — no manual intervention needed.
 
-| Type | Purpose | Example |
-|------|---------|---------|
-| **Extraction** | Get structured data from a site | Product prices, job listings, article content |
-| **Operation** | Perform actions on a site | Submit forms, trigger workflows, post content |
+## Business Value
 
----
+### For Individual Developers
 
-## Key Design Principles
+- Pay the exploration cost once, reuse cheaply forever
+- When a site redesigns, just tell the agent to re-explore
+- Token cost shifts from "pay per call" to "pay once at exploration"
 
-- **API-first exploration** — Network traffic inspection before DOM scraping. API paths are 10x more stable than DOM selectors
-- **Parameterized output** — Business variables become CLI arguments, not hardcoded values
-- **Self-verifying** — Every generated Skill is tested before delivery. Failures trigger automatic fixes
-- **Composable capabilities** — Complex workflows split into independent, reusable units
-- **No external dependencies** — Generated Skills access target sites directly through the browser, never through third-party scraping services
+### For Scraping Teams
 
----
+Traditional model:
 
-## When to Use Skill Forge vs browser-act CLI
+```
+Request → engineer codes scraper → test → deploy → maintain
+            ↑                                    ↑
+            takes requests                       breaks on redesign
+```
 
-| Use Skill Forge when... | Use browser-act CLI when... |
-|---|---|
-| You need to extract/act repeatedly at scale | One-off tasks, ad-hoc browsing |
-| Hundreds/thousands of records | Single page interactions |
-| Recurring workflows, monitoring | Login flows, captchas, demos |
-| You want zero-maintenance automation | Live exploration and debugging |
-| Reliability matters more than speed-to-first-result | Speed-to-first-result matters most |
+Skill Forge model:
 
----
+```
+Request → agent explores and generates Skill → self-tests → deploy
+                                                              ↑
+                                                          re-explore on redesign
+```
 
-## Security & Privacy
+Engineers move from "writing every scraper" to "running the platform agents use to self-serve Skill generation."
 
-- All data stays local — network captures, HAR recordings, extraction results stored on your machine only
-- Operates within user's existing authentication — reads only what the user can manually see
-- Equivalent to automated copy-paste on the user's behalf
+## Use Cases
 
----
+| Scenario | Description |
+|----------|-------------|
+| **Batch data collection** | Same pattern across N keywords / regions / categories |
+| **Cross-site comparison** | Explore each site once, generate a Skill set with a unified interface |
+| **Recurring monitoring** | Price changes, inventory changes, new arrivals |
+| **Data mining** | Recruiting, e-commerce, social — structured data extraction |
+| **Internal enterprise flows** | Encapsulate a fixed operation in an internal system as a reusable Skill |
+
+## Relationship to the BrowserAct Entry Skill
+
+| | BrowserAct entry Skill | Skill Forge |
+|---|---|---|
+| Role | Foundation, exposes local browser CLI capabilities | Extension Skill, built on top of the CLI |
+| Required | ✓ | Optional |
+| Use pattern | Agent explores and operates the browser live | Agent explores once, generates a reusable Skill |
+| Token cost | Pay per call | Pay once at exploration |
+
+BrowserAct provides the "ability to do things." Skill Forge provides the "ability to bake doing into a Skill."
 
 ## Next Steps
 
-- [Quick Start](quick-start.md) — browser-act CLI first automation in 60 seconds
-- [Stealth & Extraction](stealth.md) — Anti-detection capabilities used by Skill Forge
-- [Solutions Catalog](../solutions/README.md) — 30+ pre-built Skills generated by Skill Forge
+- [Installation](installation.md) — Install the base CLI and entry Skill
+- [Anti-Blocking](anti-blocking.md) — Anti-scraping capabilities Skill Forge relies on during exploration
+- [Agent Design](agent-design.md) — Network capture for API endpoint discovery

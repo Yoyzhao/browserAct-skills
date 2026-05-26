@@ -1,65 +1,68 @@
 # Quick Start
 
-## Up and Running in 60 Seconds
+Two paths to your first result in 60 seconds.
 
-### Content Extraction (Zero Configuration)
+## Path A: Content Extraction (Advanced WebFetch Replacement)
 
-Just need to get rendered page content with anti-bot bypass:
+Things WebFetch / curl can't fetch — JS-rendered pages, anti-bot blocks, geo-restricted content — handled in one command:
 
 ```bash
 browser-act stealth-extract https://example.com
 ```
 
-Returns page content in markdown format. No browser management needed, no session naming required. Done.
+Returns the page in markdown. No browser to manage, no session to name, no cleanup required. Comes with JS rendering and anti-bot bypass, and each call is independent — multiple URLs can run in parallel.
 
 ```bash
-# Get raw HTML
+# HTML output
 browser-act stealth-extract https://example.com --content-type html
 
-# Use proxy to access geo-restricted content
-browser-act stealth-extract https://example.com --dynamic-proxy US
+# Use a proxy for geo-restricted content
+browser-act stealth-extract https://example.com --dynamic-proxy JP
+
+# Save to file
+browser-act stealth-extract https://example.com --output ./page.md
 ```
 
-### Full Browser Automation
+Use it for: protected content, batch data collection, information retrieval. See [Anti-Blocking](anti-blocking.md) for details.
 
-Interactive workflows — login, fill forms, click actions:
+## Path B: Full Browser Automation
+
+For login flows, form filling, and click interactions — use sessions:
 
 ```bash
 # 1. List available browsers
 browser-act browser list
 
-# 2. Open browser to target URL
+# 2. Open the browser to a target URL (starts a session)
 browser-act --session my-task browser open <browser-id> https://example.com
 
-# 3. View interactive elements (returns indexed list)
+# 3. See what interactive elements exist on the page
 browser-act --session my-task state
 
-# 4. Interact using element indices
-browser-act --session my-task click 2
-browser-act --session my-task input 3 "hello@example.com"
+# 4. Interact by element index
+browser-act --session my-task click 4
+browser-act --session my-task input 2 "hello@example.com"
 
 # 5. Close when done
 browser-act --session my-task session close my-task
 ```
 
-## Core Workflow Pattern
-
-Every Browser-act interaction follows the same loop:
+## The Core Loop
 
 ```
 Open → State → Interact → State → ... → Close
 ```
 
-1. **Open** browser to target URL
-2. **State** view the page (title, URL, indexed interactive elements)
-3. **Interact** operate using element indices (click, input, select, etc.)
-4. **State** check the result
-5. Repeat until task is complete
-6. **Close** the session
+1. **Open** with `browser open` — starts a session
+2. **State** with `state` — see indexed elements
+3. **Interact** with `click` / `input` / `select` — by index
+4. **State** again to confirm the result
+5. Repeat until the task is done
+6. **Close** with `session close`
 
-## Understanding `state` Output
+## Reading `state` Output
 
-The `state` command is your eyes. It returns the page URL, title, and an indexed element tree:
+`state` is the agent's eyes. It returns the URL, title, and an indexed element tree:
 
 ```
 url=https://example.com/login
@@ -74,7 +77,7 @@ title=Login
     Forgot password?
 ```
 
-Each `*[N]` is an interactive element. Use that index in commands:
+Each `*[N]` is an interactive element. Operate it directly by index:
 
 ```bash
 browser-act --session login input 2 "user@example.com"
@@ -82,94 +85,27 @@ browser-act --session login input 3 "password123"
 browser-act --session login click 4
 ```
 
+After the page changes, old indices are invalid — call `state` again for fresh ones.
+
 ## Command Chaining
 
-When intermediate output is not needed, chain commands with `&&`:
+Chain consecutive operations that don't depend on intermediate output with `&&`, in a single call:
 
 ```bash
-browser-act --session s1 input 2 "user@example.com" && \
-browser-act --session s1 input 3 "secret" && \
+browser-act --session s1 input 2 "user" && \
+browser-act --session s1 input 3 "pass" && \
 browser-act --session s1 click 4
 ```
 
-When you need to read output between steps (e.g., check `state` before deciding what to click), execute them separately.
-
-## Differentiating Scenarios
-
-The following scenarios are capabilities unique to Browser-act compared to general-purpose automation tools:
-
-### Extracting Content from Protected Websites
-
-Regular crawlers blocked by Cloudflare? One command handles it:
-
-```bash
-browser-act stealth-extract https://anti-bot-site.com
-```
-
-Content that requires a specific region's IP to access:
-
-```bash
-browser-act stealth-extract https://geo-restricted.com --dynamic-proxy JP
-```
-
-### Multi-Account Parallel Monitoring
-
-Three competitor stores, each with independent identities, scraped simultaneously:
-
-```bash
-# Each stealth browser has independent fingerprint and proxy, sites cannot correlate them
-browser-act --session shop-a browser open stealth1 https://competitor-a.com
-browser-act --session shop-b browser open stealth2 https://competitor-b.com
-browser-act --session shop-c browser open stealth3 https://competitor-c.com
-```
-
-### Handling CAPTCHA Interruptions
-
-CAPTCHA pops up during automation — no need to abort the task:
-
-```bash
-# Try automatic solving first
-browser-act --session s1 solve-captcha
-
-# Auto-solve failed? Let the user take over remotely
-browser-act --session s1 remote-assist --objective "Please complete the CAPTCHA"
-# After the user completes it remotely, the Agent continues with subsequent steps
-```
-
-### Reusing Existing Login State
-
-Don't want to log in to GitHub again? Import your local Chrome's login state:
-
-```bash
-browser-act browser list-profiles
-# Select your Chrome Profile
-browser-act browser import-profile <browser-id> <profile-id>
-# Already logged in when opened
-browser-act --session gh browser open <browser-id> https://github.com
-```
-
-### Enterprise SSO Pass-Through
-
-Corporate intranet requires specific certificates and extensions? Control your Chrome directly:
-
-```bash
-browser-act --session work browser open <browser-id> https://internal.corp.com
-# Your certificates, extensions, and SSO cookies are all ready
-```
-
-## Choosing a Browser Type
-
-| I need to... | Use |
-|---|---|
-| Reuse Chrome logins (Gmail, GitHub, etc.) | `chrome` + Profile import |
-| Directly control local Chrome (SSO, certs, extensions) | `chrome-direct` |
-| Scrape websites with anti-bot protection | `stealth` |
-| Quick content extraction without sessions | `stealth-extract` |
-
-See [Architecture](architecture.md) for details.
+When you need to read intermediate output (e.g. check `state` before deciding what to click), run them separately.
 
 ## Next Steps
 
-- [Architecture](architecture.md) — Deep dive into browser types
-- [Commands](commands.md) — Complete command list
-- [Sessions](sessions.md) — Parallel operations and session lifecycle
+| To learn about | See |
+|----------------|------|
+| How to choose between the three browser modes | [Browser Modes](browser-modes.md) |
+| How to defeat anti-scraping | [Anti-Blocking](anti-blocking.md) |
+| How a human takes over when stuck | [Better Headless](headless.md) |
+| How to run multiple tasks in parallel | [Concurrency & Isolation](concurrency.md) |
+| The full command list | [Commands](commands.md) |
+| Letting AI write your scrapers | [Skill Forge](skill-forge.md) |

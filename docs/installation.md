@@ -2,11 +2,11 @@
 
 ## Agent Integration (Recommended)
 
-Simply tell your AI agent:
+Tell your AI agent:
 
-> Install browser-act Skill from https://github.com/browser-act/skills/tree/main/browser-act — verify it works after installation.
+> Install browser-act. Skill source: https://github.com/browser-act/skills/tree/main/browser-act . Verify it works after installation.
 
-The agent will automatically handle CLI installation, Skill configuration, and verify everything works.
+The agent will handle CLI installation, Skill configuration, and verify everything is working.
 
 ## Manual Installation
 
@@ -24,9 +24,9 @@ browser-act --version
 
 An API Key unlocks the following features:
 
-- **stealth browsers** — Anti-detection fingerprint spoofing
-- **stealth-extract** — One-command protected page extraction
-- **dynamic proxy** — Managed IP rotation by region
+- **stealth browsers** — Anti-detection browsing with fingerprint spoofing
+- **stealth-extract** — One-command extraction of protected page content
+- **Dynamic proxy** — Managed IP rotation, allocated by region
 - **solve-captcha** — Automatic captcha solving
 
 Chrome and chrome-direct browsers work without authentication.
@@ -35,11 +35,11 @@ Get an API Key:
 
 ```bash
 browser-act auth login
-# Opens registration link → complete signup → poll for key
+# Opens registration link → complete signup → poll for the key
 browser-act auth poll
 ```
 
-Or set directly:
+Or set it directly:
 
 ```bash
 browser-act auth set <your-api-key>
@@ -51,7 +51,7 @@ browser-act auth set <your-api-key>
 uv tool upgrade browser-act-cli
 ```
 
-The Skill layer automatically detects CLI/Skill version mismatches and guides upgrades.
+The Skill layer automatically detects mismatches between CLI and Skill content versions and guides the upgrade.
 
 ## Platform Support
 
@@ -63,16 +63,15 @@ The Skill layer automatically detects CLI/Skill version mismatches and guides up
 
 ## Requirements
 
-- Python 3.12+
-- uv package manager
+- Python 3.10+
 - Chrome/Chromium (for `chrome` and `chrome-direct` types)
-- API Key (only for `stealth` type)
+- API Key (only required for `stealth` type)
 
 ## Troubleshooting
 
 ### Command not found after install
 
-Ensure the `uv` tool directory is in your PATH:
+Make sure the `uv` tool directory is in your PATH:
 
 ```bash
 uv tool dir
@@ -90,5 +89,10 @@ browser-act report-log
 Send improvement suggestions:
 
 ```bash
-browser-act feedback "Description of issue or suggestion"
+browser-act feedback "Description of the issue or suggestion"
 ```
+
+## Next Steps
+
+- [Quick Start](quick-start.md) — Run your first automation
+- [Skills](skills.md) — How agents discover and use BrowserAct

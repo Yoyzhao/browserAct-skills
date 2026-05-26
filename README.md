@@ -18,44 +18,52 @@
 
 ---
 
-Browser automation CLI built for AI agents. Break through anti-bot walls, hand off to humans across platforms when stuck. Parallel multi-task execution, independent multi-session operation, isolated multi-account browsing.
+Browser automation CLI built for AI agents. Get past anti-bot walls, hand off to humans across platforms when stuck, run parallel tasks without cross-contamination, and isolate multiple accounts in independent browsers.
 
 ## Why BrowserAct
 
-AI agents need more than a headless Chrome wrapper — they need a complete browser automation platform:
+The browser an AI agent needs has to reach places standard tools can't, let a human seamlessly take over when the agent is stuck, keep parallel tasks from cross-contaminating, and be designed for LLM reasoning — not human-written scripts. **A browser for agents must get four things right.**
 
-**Go where standard tools can't — three-layer anti-blocking, progressively escalating:**
+**1. Break through blocks — three progressive layers**
 
-1. **Environment layer** — stealth fingerprints, TLS rotation, proxy switching. Most scenarios resolved here without triggering any challenge.
-2. **Execution layer** — `solve-captcha` auto-solves common CAPTCHAs; `stealth-extract` pulls protected pages in one command, fully unattended.
-3. **Human interaction layer** — `remote-assist` generates a live URL; user opens it on any device to take over. Once done, agent continues seamlessly.
+1. **Environment layer** — stealth fingerprint spoofing, TLS rotation, proxy switching. The vast majority of blocks never trigger.
+2. **Execution layer** — `solve-captcha` auto-solves CAPTCHAs; `stealth-extract` pulls protected pages in one command.
+3. **Human layer** — `remote-assist` generates a live URL; the user takes over from any device, and the agent continues seamlessly when done.
 
-**Concurrent sessions, zero interference:**
+**2. Three browser modes — by real-world scenario**
 
-- Same-browser multi-session — shared login state, independent execution, tasks don't affect each other *(coming soon)*
-- Cross-browser multi-session — different browsers operating simultaneously, fully independent
-- Multi-account isolation — each browser has its own fingerprint, proxy, and cookies; websites cannot correlate them
+| Mode | Scenario | Key trait |
+|------|----------|-----------|
+| `chrome` | Reuse local Chrome login state | Profile import or CDP attach |
+| `stealth` privacy mode | Frictionless batch scraping without login | Fresh fingerprint per session + proxy rotation, zero residue |
+| `stealth` fixed identity | Logged-in accounts · multi-browser parallel | Stable fingerprint + stable IP, stable account identity, not flagged as bots |
 
-**Isolation: independent identity per browser** — Each stealth browser is a fully independent identity — independent fingerprint, independent proxy, independent cookies. Websites cannot correlate them. Privacy mode further ensures zero residue between sessions.
+**3. Zero-interference concurrency — every agent in its own lane**
 
-**Three browser types for different scenarios:**
+- Cross-browser parallel — independent cookies, fingerprints, proxies. Sites cannot correlate them.
+- Same-browser multi-session *(coming soon)* — shared login state, independent execution, tasks don't block each other.
+- Privacy mode — fresh fingerprint and empty profile per session, zero residue when done.
 
-| Type | Use Case | Key Feature |
-|------|----------|-------------|
-| `chrome` | Reuse local Chrome logins | Import Profile, run independently |
-| `chrome-direct` | Control your running Chrome via CDP | Zero config, full extensions + SSO |
-| `stealth` | Anti-detection browsing | Fingerprint spoofing, proxy rotation, batch collection |
+**4. Designed for agent reasoning — not human scripts**
 
-All three share the same command interface. Learn one, use all.
+- **Compact text output** — indexed text format, several times more token-efficient than JSON or HTML.
+- **Indexed interaction** — `state` returns an indexed list; `click 3` / `input 2 "..."`. No DOM parsing required.
+- **Semantic memory** — every browser carries a `desc`, matched to tasks by meaning.
+- **Concurrency-safe** — session ownership + explicit naming. Multi-agent operation never conflicts.
 
-**Designed for agents:**
+**Security: confirmation gating** — sensitive operations (browser create / delete, Profile import, proxy changes, security and privacy toggles) require explicit user approval. Prior approvals do not carry over. Enforced at the Skill layer, not a configuration toggle.
 
-- **Context efficiency** — compact text output, consuming fewer tokens than JSON or HTML
-- **Index-based operation** — `state` returns indexed interactive elements; agent operates by index directly, no complex DOM parsing
-- **Parallel safety** — session ownership model + explicit naming, no conflicts between multiple agents
-- **Complete capabilities** — 50+ commands covering navigation, forms, screenshots, network capture, cookie management
+---
 
-**Security: confirmation gating** — sensitive operations (creating browsers, deletion, importing Profiles) require explicit user approval. No exceptions. Prior approvals do not carry over. Enforced at the Skill layer, not a configuration toggle.
+## And More
+
+- **Better headless** — Default headless without disrupting users; stealth headless that isn't detected.
+- **Cross-platform remote handoff** — Any device opens the link to take over, and the agent continues seamlessly.
+- **Network capture & HAR recording** — Discover the API endpoints behind any UI, debug auth flows, capture XHR data not in the HTML.
+- **JavaScript escape hatch** — `eval` runs arbitrary JS in the page when index-based interaction isn't enough — bulk extraction, deeply nested data, custom logic.
+- **Cookie import/export** — Share login state across browser types without a full Profile copy.
+- **Offline mode** — Cut a session's network to test form submissions without real side effects.
+- **50+ commands** — Navigation, interaction, data extraction, waiting, tabs, dialogs, network capture, HAR, cookies, offline mode — full automation surface.
 
 ---
 
@@ -63,7 +71,7 @@ All three share the same command interface. Learn one, use all.
 
 Tell your AI agent:
 
-> Install browser-act Skill from https://github.com/browser-act/skills/tree/main/browser-act
+> Install browser-act. Skill source: https://github.com/browser-act/skills/tree/main/browser-act . Verify it works after installation.
 
 [Installation details →](docs/installation.md)
 
@@ -79,7 +87,7 @@ browser-act stealth-extract https://example.com
 browser-act --session my-task browser open <id> https://example.com
 browser-act --session my-task state          # See clickable elements
 browser-act --session my-task click 3        # Click by index
-browser-act --session my-task input 2 "hi"   # Type into field
+browser-act --session my-task input 2 "hi"   # Type into a field
 ```
 
 [More examples and workflows →](docs/quick-start.md)
@@ -104,7 +112,7 @@ browser-act get-skills core --skill-version 2.0.2
 
 ## Documentation
 
-Want to understand how BrowserAct works under the hood? Full documentation covers architecture, commands, sessions, stealth, security, and advanced features.
+Full documentation covers anti-blocking, browser modes, sessions and concurrency, headless and remote handoff, agent design, the Skills system, and the complete command reference.
 
 [Read the full documentation →](docs/README.md)
 
@@ -112,17 +120,17 @@ Want to understand how BrowserAct works under the hood? Full documentation cover
 
 ## Also From BrowserAct
 
-### Skill Forge — Generate a Skill for Any Website
+### Skill Forge — Your Personal Scraping Engineer
 
 Need to extract data from the same website repeatedly at scale? Don't write scrapers by hand. **Skill Forge** explores a site once, discovers its APIs and data patterns, generates a deploy-ready Skill package, then runs reliably without re-exploration — 500 or 5,000 records through the same stable path.
 
 **Any website. Any data. One command to start:**
 
-> Install browser-act-skill-forge Skill from https://github.com/browser-act/skills/tree/main/browser-act-skill-forge
+> Install browser-act-skill-forge. Skill source: https://github.com/browser-act/skills/tree/main/browser-act-skill-forge . Verify it works after installation.
 
 Then tell your agent what you need:
 
-> *"Forge a Skill that extracts job listings from LinkedIn — title, company, salary, URL."*
+> *"Forge a Skill that extracts job listings from LinkedIn — title, company, salary, URL. I'll run 300 keywords later."*
 
 [Skill Forge documentation →](docs/skill-forge.md)
 

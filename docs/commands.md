@@ -1,212 +1,131 @@
-# Command Reference
+# Commands
 
-Complete command list for Browser-act CLI.
-
-## What do I want to do?
-
-| I want to... | Use these commands |
-|---------|-----------|
-| Extract protected website content | `stealth-extract` |
-| Open a webpage and interact | `browser open` → `state` → `click`/`input` |
-| Fill and submit a form | `state` → `input` → `select` → `click` |
-| Take a screenshot for archiving | `screenshot` / `screenshot --full` |
-| Find the API behind a page | `network requests --type xhr,fetch` → `network request <id>` |
-| Handle captchas | `solve-captcha` → `remote-assist` |
-| Run multiple accounts in parallel | Open multiple browsers each with `--session` |
-| Download page as markdown | `get markdown` |
-| Handle a dialog popup | `dialog accept` / `dialog dismiss` |
-| Wait for page to finish loading | `wait stable` |
-
----
+Complete BrowserAct CLI command index. For detailed usage and context, see the relevant feature chapter.
 
 ## Global Options
 
 | Option | Description |
-|------|------|
+|--------|-------------|
 | `--session <name>` | Session name (required for browser interaction commands) |
 | `--format text\|json` | Output format |
 | `--no-auto-dialog` | Disable automatic dialog handling |
+| `--version` | Show CLI version |
 
-## Navigation (requires `--session`)
+## Common Tasks
 
-| Command | Description |
-|------|------|
-| `navigate <url>` | Navigate to URL in the current tab |
-| `navigate <url> --new-tab` | Open URL in a new tab |
-| `back` | Go back |
-| `forward` | Go forward |
-| `reload` | Reload the current page |
+| I want to... | Use these commands | See |
+|--------------|--------------------|-----|
+| Extract content from a protected site | `stealth-extract` | [Anti-Blocking](anti-blocking.md) |
+| Create an anti-scraping browser | `browser create --type stealth ...` | [Browser Modes](browser-modes.md) |
+| Open a page and interact | `browser open` → `state` → `click`/`input` | [Agent Design](agent-design.md) |
+| Find the API behind a page | `network requests` → `network request <id>` | [Agent Design](agent-design.md) |
+| Handle CAPTCHAs | `solve-captcha` → `remote-assist` | [Anti-Blocking](anti-blocking.md) / [Better Headless](headless.md) |
+| Hand off when stuck | `remote-assist --objective "..."` | [Better Headless](headless.md) |
+| Run multiple accounts in parallel | Multiple browsers, each with its own `--session` | [Concurrency](concurrency.md) |
+| Reuse an existing login | `browser import-profile` | [Browser Modes](browser-modes.md) |
 
-## Page State (requires `--session`)
+## Command Groups
 
-| Command | Description |
-|------|------|
-| `state` | Get URL, title, and indexed list of interactive elements |
-| `screenshot [path]` | Take a screenshot (save to specified path or temp directory) |
-| `screenshot --full` | Full-page screenshot |
+### Browser Interaction (requires `--session`)
 
-`state` is the core observation command. It returns:
-- Current URL and page title
-- Page element tree, with interactive elements indexed as `*[N]`
-- Each element shows tag type, attributes, and text content
-
-## Page Interaction (requires `--session`)
-
-| Command | Description |
-|------|------|
-| `click <index>` | Click an element by index |
-| `type <text>` | Type text into the currently focused element |
-| `input <index> <text>` | Click an element then type text |
-| `keys <key_combo>` | Send keyboard keys (Enter, Tab, Ctrl+a, etc.) |
-| `select <index> <option>` | Select a dropdown option (by visible text) |
-| `hover <index>` | Hover over an element |
-| `scroll up\|down [--amount N]` | Scroll the page |
-| `scrollintoview --selector <css>` | Scroll an element into the viewport |
-| `upload <index> <path>` | Upload a file to a file input |
-
-### Keyboard Combinations
-
-`keys` supports modifier key combinations:
-
-```bash
-browser-act --session s1 keys Enter
-browser-act --session s1 keys Tab
-browser-act --session s1 keys Ctrl+a
-browser-act --session s1 keys Ctrl+c
-browser-act --session s1 keys Shift+Tab
+#### Navigation
+```
+navigate <url> [--new-tab]    back / forward / reload
 ```
 
-## Data Extraction (requires `--session`)
-
-| Command | Description |
-|------|------|
-| `get title` | Page title |
-| `get html` | Full page HTML |
-| `get html --selector <css>` | HTML of a specified element |
-| `get text <index>` | Get element text content by index |
-| `get value <index>` | Get the value of an input/textarea |
-| `get markdown` | Convert page to markdown |
-
-## JavaScript Execution (requires `--session`)
-
-```bash
-browser-act --session s1 eval "document.title"
-browser-act --session s1 eval "document.querySelectorAll('a').length"
-browser-act --session s1 eval --stdin < script.js
+#### Page State
+```
+state                          screenshot [path] [--full]
 ```
 
-`eval` executes arbitrary JavaScript in the page context and returns the result.
+#### Interaction
+```
+click <index>                  hover <index>
+input <index> <text>           select <index> <option>
+type <text>                    keys <key_combo>
+scroll up|down [--amount]      scrollintoview --selector <css>
+upload <index> <path>
+```
 
-## Wait Commands (requires `--session`)
+#### Data Extraction
+```
+get title                      get html [--selector]
+get text <index>               get value <index>
+get markdown
+```
 
-| Command | Description |
-|------|------|
-| `wait stable` | Wait for the page to stabilize (document ready + network idle) |
-| `wait stable --timeout 10` | Custom timeout (seconds) |
-| `wait selector <index>` | Wait for an element by index |
-| `wait selector --selector <css>` | Wait by CSS selector |
-| `wait selector --state visible\|hidden\|attached\|detached` | Wait for a specified state |
-| `wait selector --timeout 10` | Custom timeout |
+#### JavaScript
+```
+eval <js> [--stdin]
+```
 
-## Network Inspection (requires `--session`)
+#### Wait
+```
+wait stable [--timeout]
+wait selector <index> --state visible|hidden|attached|detached [--timeout]
+wait selector --selector <css> --state ...
+```
 
-| Command | Description |
-|------|------|
-| `network requests` | List all captured requests |
-| `network requests --filter <substring>` | Filter by URL substring |
-| `network requests --type xhr,fetch` | Filter by resource type |
-| `network requests --method POST` | Filter by HTTP method |
-| `network requests --status 2xx` | Filter by status code |
-| `network request <request_id>` | Full details of a single request (headers, body, response body) |
-| `network clear` | Clear captured requests |
-| `network offline on\|off` | Toggle network offline mode |
-| `network har start` | Start HAR recording |
-| `network har stop [path]` | Stop and save HAR file |
+#### Network
+```
+network requests [--filter] [--type] [--method] [--status] [--clear]
+network request <request_id>
+network clear
+network offline on|off
+network har start
+network har stop [path]
+```
 
-## Tab Management (requires `--session`)
+#### Tab and Dialog
+```
+tab list                       tab switch <tab_id>             tab close [tab_id]
+dialog accept [text]           dialog dismiss                   dialog status
+```
 
-| Command | Description |
-|------|------|
-| `tab list` | List open tabs and their IDs |
-| `tab switch <tab_id>` | Switch tab by ID |
-| `tab close [tab_id]` | Close a tab (closes the current tab if not specified) |
+#### Cookies
+```
+cookies get [--url]            cookies set <name> <value> [--domain] [--path] [--secure] [--http-only]
+cookies clear [--url]          cookies export <file>            cookies import <file>
+```
 
-Use `navigate <url> --new-tab` to open a URL in a new tab.
+#### CAPTCHA and Remote Assist
+```
+solve-captcha                  captcha-aid
+remote-assist [--objective]
+```
 
-## Dialog Handling (requires `--session`)
+### Browser Management (no `--session` required)
 
-| Command | Description |
-|------|------|
-| `dialog accept [text]` | Accept a dialog (optional prompt text) |
-| `dialog dismiss` | Cancel/close a dialog |
-| `dialog status` | Check if a dialog is open |
+```
+browser list
+browser open <id> [url] [--headed] [--allow-restart-chrome]
+browser create --type <chrome|chrome-direct|stealth> --name <n> --desc <d> [options]
+browser update <id> [options]
+browser delete <id>
+browser regions
+browser list-profiles
+browser import-profile <browser_id> <profile_id> [--allow-restart-chrome]
+```
 
-By default, `alert` and `beforeunload` dialogs are automatically accepted. Use `--no-auto-dialog` to handle all dialogs manually.
-
-## Cookie Management (requires `--session`)
-
-| Command | Description |
-|------|------|
-| `cookies get` | Get all cookies |
-| `cookies get --url <url>` | Get cookies for a specified URL |
-| `cookies set <name> <value>` | Set a cookie |
-| `cookies set <name> <value> --domain <d> --path <p> --secure --http-only` | Set with options |
-| `cookies clear` | Clear all cookies |
-| `cookies clear --url <url>` | Clear cookies for a specified URL |
-| `cookies export <file>` | Export to a JSON file |
-| `cookies import <file>` | Import from a JSON file |
-
-## Captcha & Remote Assist (requires `--session`)
-
-| Command | Description |
-|------|------|
-| `solve-captcha` | Attempt to automatically solve a captcha |
-| `captcha-aid` | Assist with the current page captcha |
-| `remote-assist` | Return a live remote URL that the user can open in any browser to operate |
-| `remote-assist --objective "Complete 2FA"` | With a reason description |
-
-## Session Management
-
-| Command | Description |
-|------|------|
-| `session list` | List all active sessions |
-| `session close [name]` | Close a session (closes the current session if not specified) |
-
-## Browser Management
-
-| Command | Description |
-|------|------|
-| `browser list` | List all browsers |
-| `browser open <id> [url]` (requires `--session`) | Open a URL in a browser |
-| `browser open <id> [url] --headed` (requires `--session`) | Show the browser window |
-| `browser create --type <t> --name <n> --desc <d>` | Create a browser |
-| `browser update <id> [options]` | Update browser settings |
-| `browser delete <id>` | Delete a browser |
-| `browser regions` | List proxy regions |
-| `browser list-profiles` | List importable profiles |
-| `browser import-profile <browser_id> <profile_id>` | Import a profile |
-
-### browser create Options
-
+#### `browser create` Options
 ```bash
 browser-act browser create \
   --type chrome|chrome-direct|stealth \
   --name "my-browser" \
-  --desc "Purpose description" \
-  --source-profile <profile_id> \
-  --dynamic-proxy <region> \
-  --custom-proxy <url> \
-  --private \
+  --desc "purpose description" \
+  --source-profile <profile_id> \    # chrome only
+  --dynamic-proxy <region> \         # stealth only
+  --custom-proxy <url> \             # stealth only
+  --private \                        # stealth only
   --confirm-before-use
 ```
 
-### browser update Options
-
+#### `browser update` Options
 ```bash
 browser-act browser update <id> \
-  --name "New name" \
-  --desc "Override description" \
-  --desc-append "Append to description" \
+  --name "new name" \
+  --desc "overwrite description" \
+  --desc-append "append to description" \
   --dynamic-proxy <region> \
   --custom-proxy <url> \
   --no-proxy \
@@ -214,7 +133,13 @@ browser-act browser update <id> \
   --confirm-before-use|--no-confirm-before-use
 ```
 
-## Stealth Extract
+### Session Management
+
+```
+session list                   session close [name]
+```
+
+### Stealth Extract (standalone, no session required)
 
 ```bash
 browser-act stealth-extract <url>
@@ -225,23 +150,24 @@ browser-act stealth-extract <url> --timeout 60
 browser-act stealth-extract <url> --output ./result.md
 ```
 
-Standalone anti-detection content extraction. No session required.
+### Authentication
 
-## Authentication
+```
+auth login                     auth poll
+auth set <api_key>             auth clear
+```
 
-| Command | Description |
-|------|------|
-| `auth login` | Get a registration link |
-| `auth poll` | Check registration status |
-| `auth set <api_key>` | Manually set an API key |
-| `auth clear` | Remove the API key |
+### Skill and System
 
-## Skills & System
+```
+get-skills core --skill-version <v>
+get-skills advanced
+get-skills main
+report-log
+feedback <message>
+```
 
-| Command | Description |
-|------|------|
-| `get-skills core --skill-version <v>` | Get core skill content |
-| `get-skills advanced` | Get advanced feature content |
-| `get-skills main` | Get the latest skill file (for self-update) |
-| `report-log` | Upload logs for diagnostics |
-| `feedback <message>` | Send improvement suggestions |
+## Next Steps
+
+- [Agent Design](agent-design.md) — Design philosophy and typical use behind the commands
+- [Quick Start](quick-start.md) — Combine commands into working flows
