@@ -38,6 +38,11 @@ navigate <url> [--new-tab]    back / forward / reload
 state                          screenshot [path] [--full]
 ```
 
+Index markers in `state` output:
+
+- `[N]` — Index of an interactive element (used with `click N` / `input N "..."` etc.)
+- `*[N]` — Element added or changed since the previous `state` call. The first call marks every element with `*`; later calls mark only the deltas, helping the agent focus on what's new.
+
 #### Interaction
 ```
 click <index>                  hover <index>
@@ -116,7 +121,7 @@ browser-act browser create \
   --source-profile <profile_id> \    # chrome only
   --dynamic-proxy <region> \         # stealth only
   --custom-proxy <url> \             # stealth only
-  --private \                        # stealth only
+  --private true|false \             # stealth only
   --confirm-before-use
 ```
 

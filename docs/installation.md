@@ -63,7 +63,7 @@ The Skill layer automatically detects mismatches between CLI and Skill content v
 
 ## Requirements
 
-- Python 3.10+
+- Python 3.12+
 - Chrome/Chromium (for `chrome` and `chrome-direct` types)
 - API Key (only required for `stealth` type)
 

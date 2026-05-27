@@ -44,7 +44,7 @@ browser-act --session my-task click 4
 browser-act --session my-task input 2 "hello@example.com"
 
 # 5. Close when done
-browser-act --session my-task session close my-task
+browser-act session close my-task
 ```
 
 ## The Core Loop
@@ -77,7 +77,7 @@ title=Login
     Forgot password?
 ```
 
-Each `*[N]` is an interactive element. Operate it directly by index:
+Each `[N]` is an interactive element. Operate it directly by index:
 
 ```bash
 browser-act --session login input 2 "user@example.com"

@@ -58,7 +58,7 @@ browser-act browser create --type stealth --name s1 --desc "..." --custom-proxy 
 When enabled, each session uses a fresh fingerprint and empty profile, with no data persisted:
 
 ```bash
-browser-act browser create --type stealth --name "ephemeral" --desc "One-off task" --private
+browser-act browser create --type stealth --name "ephemeral" --desc "One-off task" --private true
 ```
 
 Or toggle on an existing browser:

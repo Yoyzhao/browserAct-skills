@@ -23,7 +23,7 @@ title=Login
 
 ### Indexed Interaction
 
-`state` returns an indexed list of interactive elements. The agent reasons directly with indices:
+`state` returns an indexed list of interactive elements (the `N` in `[N]` in the output is the element index). The agent reasons directly with indices:
 
 ```bash
 browser-act --session s1 click 3              # Click element at index 3

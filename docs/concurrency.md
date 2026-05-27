@@ -17,10 +17,10 @@ Every agent gets its own lane. Multi-agent multi-task parallel runs don't contam
 Run any number of browsers simultaneously, each with independent cookies / fingerprint / proxy / login state. **Sites cannot correlate them.**
 
 ```bash
-# Launch parallel tasks with independent identities
-browser-act --session monitor browser open competitor1 https://shop-a.com
-browser-act --session monitor browser open competitor2 https://shop-b.com
-browser-act --session monitor browser open competitor3 https://shop-c.com
+# Each session name must be globally unique — even when pointing to different browsers
+browser-act --session monitor-shop-a browser open competitor1 https://shop-a.com
+browser-act --session monitor-shop-b browser open competitor2 https://shop-b.com
+browser-act --session monitor-shop-c browser open competitor3 https://shop-c.com
 ```
 
 **Properties:**
@@ -48,11 +48,12 @@ browser-act --session task-b browser open <browser-id> https://site.com/page2
 
 **Use cases:** Multiple subtasks under the same account.
 
-### Naming Parallel Sessions
+### Naming Parallel Sessions (Globally Unique)
 
-Each parallel session must have a unique name reflecting its purpose:
+In a parallel setup every `--session <name>` must be **globally unique** — names cannot collide even across different browsers. Pick names that reflect each session's purpose:
 
 ```bash
+# Same browser, multiple sessions: distinguish subtasks by name
 browser-act --session monitor-prices browser open shop1 https://shop.com
 browser-act --session track-orders browser open shop1 https://shop.com/orders
 ```
@@ -64,7 +65,7 @@ Each session uses a fresh fingerprint and profile, with nothing persisted at the
 ```bash
 # Create a stealth browser with privacy mode enabled
 browser-act browser create --type stealth --name "ephemeral" \
-  --desc "One-off collection" --private
+  --desc "One-off collection" --private true
 ```
 
 **Properties:**
@@ -84,7 +85,7 @@ A session is a standalone browser window bound to a name. All interaction comman
 browser-act --session my-task browser open <id> https://example.com
 browser-act --session my-task state
 browser-act --session my-task click 2
-browser-act --session my-task session close my-task
+browser-act session close my-task
 ```
 
 The session name is your handle to a specific browser context, and persists until explicitly closed.
@@ -162,7 +163,7 @@ Browser-management or system-level commands don't require `--session`:
 | **Descriptive names** | `check-price`, not `s1` |
 | **Close when done** | Don't leave sessions hanging |
 | **One browser, many sessions** | Prefer parallel sessions over duplicate browsers |
-| **Unique names** | Don't reuse session names from other conversations |
+| **Globally unique names** | Parallel session names must not collide, even across different browsers |
 | **One task, one session** | One logical task = one session |
 
 ## Next Steps

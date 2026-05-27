@@ -113,7 +113,7 @@ Fresh fingerprint per session + auto-rotating proxy IPs, zero residue. Ideal for
 browser-act browser create --type stealth --name "monitor" \
   --desc "Competitor price monitoring" \
   --dynamic-proxy US \
-  --private
+  --private true
 ```
 
 **Properties:**
